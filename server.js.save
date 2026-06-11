@@ -1,0 +1,344 @@
+const WebSocket = require("ws");
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+
+const app = express();
+app.use(cors());
+
+const server = app.listen(3000, () => {
+  console.log("AIS Server running on port 3000");
+});
+
+// WebSocket server for Wix
+const wss = new WebSocket.Server({ server });
+
+let clients = [];
+
+wss.on("connection", (ws) => {
+  console.log("Wix client connected");
+  clients.push(ws);
+
+  ws.on("close", () => {
+    clients = clients.filter(c => c !== ws);
+  });
+});
+
+// AISStream connection
+const aisSocket = new WebSocket("wss://stream.aisstream.io/v0/stream");
+
+aisSocket.on("open", () => {
+  console.log("Connected to AISStream");
+
+  const subscription = {
+    APIKey: process.env.AISSTREAM_KEY,
+
+    // Strait of Canso bounding box
+    BoundingBoxes: [
+      [
+        [45.0, -62.5],
+        [46.5, -60.5]
+      ]
+    ],
+
+    FilterMessageTypes: ["PositionReport"]
+  };
+
+  aisSocket.send(JSON.stringify(subscription));
+});
+
+aisSocket.on("message", (data) => {
+  try {
+    const msg = JSON.parse(data);
+
+    if (msg.MessageType === "PositionReport") {
+      const ship = msg.Message.PositionReport;
+
+      const clean = {
+        mmsi: ship.UserID,
+        lat: ship.Latitude,
+        lon: ship.Longitude,
+        speed: ship.Speed,
+        course: ship.Course
+      };
+
+      clients.forEach(c => {
+        if (c.readyState === WebSocket.OPEN) {
+          c.send(JSON.stringify(clean));
+        }
+      });
+    }
+  } catch (err) {
+    console.log("Parse error");
+  }
+});const WebSocket = require("ws");
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+
+const app = express();
+app.use(cors());
+
+const server = app.listen(3000, () => {
+  console.log("AIS Server running on port 3000");
+});
+
+// WebSocket server for Wix frontend
+const wss = new WebSocket.Server({ server });
+
+let clients = [];
+
+wss.on("connection", (ws) => {
+  console.log("Wix client connected");
+  clients.push(ws);
+
+  ws.on("close", () => {
+    clients = clients.filter(c => c !== ws);
+  });
+});
+
+// AISStream connection
+const aisSocket = new WebSocket("wss://stream.aisstream.io/v0/stream");
+
+aisSocket.on("open", () => {
+  console.log("Connected to AISStream");
+
+  const subscription = {
+    APIKey: process.env.AISSTREAM_KEY,
+
+    BoundingBoxes: [
+      [
+        [45.0, -62.5],
+        [46.5, -60.5]
+      ]
+    ],
+
+    FilterMessageTypes: ["PositionReport"]
+  };
+
+  aisSocket.send(JSON.stringify(subscription));
+});
+
+aisSocket.on("message", (data) => {
+  try {
+    const msg = JSON.parse(data);
+
+    if (msg.MessageType === "PositionReport") {
+      const ship = msg.Message.PositionReport;
+
+      const clean = {
+        mmsi: ship.UserID,
+        lat: ship.Latitude,
+        lon: ship.Longitude,
+        speed: ship.Speed,
+        course: ship.Course
+      };
+
+      clients.forEach(c => {
+        if (c.readyState === WebSocket.OPEN) {
+          c.send(JSON.stringify(clean));
+        }
+      });
+    }
+  } catch (err) {
+    console.log("Parse error");
+  }
+});const WebSocket = require("ws");
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+
+const app = express();
+app.use(cors());
+
+const server = app.listen(3000, () => {
+  console.log("AIS Server running on port 3000");
+});
+
+// WebSocket server for Wix frontend
+const wss = new WebSocket.Server({ server });
+
+let clients = [];
+
+wss.on("connection", (ws) => {
+  console.log("Wix client connected");
+  clients.push(ws);
+
+  ws.on("close", () => {
+    clients = clients.filter(c => c !== ws);
+  });
+});
+
+// AISStream connection
+const aisSocket = new WebSocket("wss://stream.aisstream.io/v0/stream");
+
+aisSocket.on("open", () => {
+  console.log("Connected to AISStream");
+
+  const subscription = {
+    APIKey: process.env.AISSTREAM_KEY,
+
+    BoundingBoxes: [
+      [
+        [45.0, -62.5],
+        [46.5, -60.5]
+      ]
+    ],
+
+    FilterMessageTypes: ["PositionReport"]
+  };
+
+  aisSocket.send(JSON.stringify(subscription));
+});
+
+aisSocket.on("message", (data) => {
+  try {
+    const msg = JSON.parse(data);
+
+    if (msg.MessageType === "PositionReport") {
+      const ship = msg.Message.PositionReport;
+
+      const clean = {
+        mmsi: ship.UserID,
+        lat: ship.Latitude,
+        lon: ship.Longitude,
+        speed: ship.Speed,
+        course: ship.Course
+      };
+
+      clients.forEach(c => {
+        if (c.readyState === WebSocket.OPEN) {
+          c.send(JSON.stringify(clean));
+        }
+      });
+    }
+  } catch (err) {
+    console.log("Parse error");
+  }
+});const WebSocket = require("ws");
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+
+const app = express();
+app.use(cors());
+
+const server = app.listen(3000, () => {
+  console.log("AIS Server running on port 3000");
+});
+
+// WebSocket server for Wix frontend
+const wss = new WebSocket.Server({ server });
+
+let clients = [];
+
+wss.on("connection", (ws) => {
+  console.log("Wix client connected");
+  clients.push(ws);
+
+  ws.on("close", () => {
+    clients = clients.filter(c => c !== ws);
+  });
+});
+
+// AISStream connection
+const aisSocket = new WebSocket("wss://stream.aisstream.io/v0/stream");
+
+aisSocket.on("open", () => {
+  console.log("Connected to AISStream");
+
+  const subscription = {
+    APIKey: process.env.AISSTREAM_KEY,
+
+    BoundingBoxes: [
+      [
+        [45.0, -62.5],
+        [46.5, -60.5]
+      ]
+    ],
+
+    FilterMessageTypes: ["PositionReport"]
+  };
+
+  aisSocket.send(JSON.stringify(subscription));
+});
+
+aisSocket.on("message", (data) => {
+  try {
+    const msg = JSON.parse(data);
+
+    if (msg.MessageType === "PositionReport") {
+      const ship = msg.Message.PositionReport;
+
+      const clean = {
+        mmsi: ship.UserID,
+        lat: ship.Latitude,
+        lon: ship.Longitude,
+        speed: ship.Speed,
+        course: ship.Course
+      };
+
+      clients.forEach(c => {
+        if (c.readyState === WebSocket.OPEN) {
+          c.send(JSON.stringify(clean));
+        }
+      });
+    }
+  } catch (err) {
+    console.log("Parse error");
+  }const WebSocket = require("ws");
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+
+const app = express();
+app.use(cors());
+
+const server = app.listen(3000, () => {
+  console.log("AIS Server running on port 3000");
+});
+
+// WebSocket server for Wix frontend
+const wss = new WebSocket.Server({ server });
+
+let clients = [];
+
+wss.on("connection", (ws) => {
+  console.log("Wix client connected");
+  clients.push(ws);
+
+  ws.on("close", () => {
+    clients = clients.filter(c => c !== ws);
+  });
+});
+
+// AISStream connection
+const aisSocket = new WebSocket("wss://stream.aisstream.io/v0/stream");
+
+aisSocket.on("open", () => {
+  console.log("Connected to AISStream");
+
+  const subscription = {
+    APIKey: process.env.AISSTREAM_KEY,
+
+    BoundingBoxes: [
+      [
+        [45.0, -62.5],
+        [46.5, -60.5]
+      ]
+    ],
+
+    FilterMessageTypes: ["PositionReport"]
+  };
+
+  aisSocket.send(JSON.stringify(subscription));
+});
+
+aisSocket.on("message", (data) => {
+  try {
+    const msg = JSON.parse(data);
+
+    if (msg.MessageType === "PositionReport") {
+      conbash
+\nano server.js
+

@@ -50,12 +50,14 @@ aisSocket.on("open", () => {
 });
 
 aisSocket.on("message", (data) => {
-  try {
-    console.log("RAW AIS:", data);
+  console.log("RAW AIS:", data);
 
+  try {
     const msg = JSON.parse(data);
 
-    if (msg.MessageType === "PositionReport") {
+    console.log("MESSAGE TYPE:", msg.MessageType);
+
+    if (msg.MessageType === "PositionReport" && msg.Message?.PositionReport) {
       const ship = msg.Message.PositionReport;
 
       const clean = {
@@ -66,7 +68,6 @@ aisSocket.on("message", (data) => {
         course: ship.Course
       };
 
-      // send to Wix
       clients.forEach(c => {
         if (c.readyState === WebSocket.OPEN) {
           c.send(JSON.stringify(clean));
@@ -77,5 +78,4 @@ aisSocket.on("message", (data) => {
   } catch (err) {
     console.log("Parse error:", err.message);
   }
-});
-   
+});   

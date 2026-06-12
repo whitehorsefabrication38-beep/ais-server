@@ -71,3 +71,48 @@ aisSocket.on("message", (data) => {
     console.log("Parse error");
   }
 });
+const aisSocket = new WebSocket("wss://stream.aisstream.io/v0/stream");
+
+aisSocket.on("open", () => {
+  console.log("Connected to AISStream");
+
+  const subscription = {
+    APIKey: process.env.AISSTREAM_KEY,
+    BoundingBoxes: [
+      [
+        [40, -75],
+        [50, -55]
+      ]
+    ]
+  };
+
+  aisSocket.send(JSON.stringify(subscription));
+});
+
+aisSocket.on("message", (data) => {
+  console.log("RAW AIS:", data);
+
+  try {
+    const msg = JSON.parse(data);
+
+    if (msg.MessageType === "PositionReport") {
+      const ship = msg.Message.PositionReport;
+
+      const clean = {
+        mmsi: ship.UserID,
+        lat: ship.Latitude,
+        lon: ship.Longitude,
+        speed: ship.Speed,
+        course: ship.Course
+      };
+
+      clients.forEach(c => {
+        if (c.readyState === WebSocket.OPEN) {
+          c.send(JSON.stringify(clean));
+        }
+      });
+    }
+  } catch (err) {
+    console.log("Parse error");
+  }
+});

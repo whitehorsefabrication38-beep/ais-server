@@ -45,10 +45,16 @@ aisSocket.on("open", () => {
       ]
     ]
   };
-
+console.log("Sending subscription:", JSON.stringify(subscription));
   aisSocket.send(JSON.stringify(subscription));
 });
+aisSocket.on("error", (err) => {
+  console.log("AISSocket error:", err);
+});
 
+aisSocket.on("close", (code, reason) => {
+  console.log("AISSocket closed:", code, reason.toString());
+});
 aisSocket.on("message", (data) => {
   console.log("RAW AIS:", data);
 
@@ -79,3 +85,4 @@ aisSocket.on("message", (data) => {
     console.log("Parse error:", err.message);
   }
 });   
+

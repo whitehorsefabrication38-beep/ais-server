@@ -56,14 +56,19 @@ aisSocket.on("close", (code, reason) => {
   console.log("AISSocket closed:", code, reason.toString());
 });
 aisSocket.on("message", (data) => {
-  console.log("RAW AIS:", data);
-
   try {
-    const msg = JSON.parse(data);
+    const text = data.toString(); // <-- FIX IS HERE
+
+    console.log("RAW AIS:", text);
+
+    const msg = JSON.parse(text);
 
     console.log("MESSAGE TYPE:", msg.MessageType);
 
-    if (msg.MessageType === "PositionReport" && msg.Message?.PositionReport) {
+    if (
+      msg.MessageType === "PositionReport" &&
+      msg.Message?.PositionReport
+    ) {
       const ship = msg.Message.PositionReport;
 
       const clean = {
@@ -84,5 +89,4 @@ aisSocket.on("message", (data) => {
   } catch (err) {
     console.log("Parse error:", err.message);
   }
-});   
-
+});

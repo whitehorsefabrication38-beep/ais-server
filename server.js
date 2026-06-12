@@ -6,8 +6,11 @@ require("dotenv").config();
 const app = express();
 app.use(cors());
 
-const server = app.listen(3000, () => {
-  console.log("AIS Server running on port 3000");
+// IMPORTANT: Render port fix
+const PORT = process.env.PORT || 3000;
+
+const server = app.listen(PORT, () => {
+  console.log("AIS Server running on port", PORT);
 });
 
 // WebSocket server for Wix frontend
@@ -24,53 +27,10 @@ wss.on("connection", (ws) => {
   });
 });
 
-// AISStream connection
-const aisSocket = new WebSocket("wss://stream.aisstream.io/v0/stream");
+// ===============================
+// AIS STREAM CONNECTION (CLEAN)
+// ===============================
 
-aisSocket.on("open", () => {
-  console.log("Connected to AISStream");
-
-  const subscription = {
-    APIKey: process.env.AISSTREAM_KEY,
-
-    BoundingBoxes: [
-      [
-        [45.0, -62.5],
-        [46.5, -60.5]
-      ]
-    ],
-
-    FilterMessageTypes: ["PositionReport"]
-  };
-
-  aisSocket.send(JSON.stringify(subscription));
-});
-
-aisSocket.on("message", (data) => {
-  try {
-    const msg = JSON.parse(data);
-
-    if (msg.MessageType === "PositionReport") {
-      const ship = msg.Message.PositionReport;
-
-      const clean = {
-        mmsi: ship.UserID,
-        lat: ship.Latitude,
-        lon: ship.Longitude,
-        speed: ship.Speed,
-        course: ship.Course
-      };
-
-      clients.forEach(c => {
-        if (c.readyState === WebSocket.OPEN) {
-          c.send(JSON.stringify(clean));
-        }
-      });
-    }
-  } catch (err) {
-    console.log("Parse error");
-  }
-});
 const aisSocket = new WebSocket("wss://stream.aisstream.io/v0/stream");
 
 aisSocket.on("open", () => {
@@ -90,9 +50,9 @@ aisSocket.on("open", () => {
 });
 
 aisSocket.on("message", (data) => {
-  console.log("RAW AIS:", data);
-
   try {
+    console.log("RAW AIS:", data);
+
     const msg = JSON.parse(data);
 
     if (msg.MessageType === "PositionReport") {
@@ -106,13 +66,16 @@ aisSocket.on("message", (data) => {
         course: ship.Course
       };
 
+      // send to Wix
       clients.forEach(c => {
         if (c.readyState === WebSocket.OPEN) {
           c.send(JSON.stringify(clean));
         }
       });
     }
+
   } catch (err) {
-    console.log("Parse error");
+    console.log("Parse error:", err.message);
   }
 });
+   
